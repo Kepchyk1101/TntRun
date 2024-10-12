@@ -1,0 +1,14 @@
+name: TntRun
+version: '1.0'
+main: net.spookytime.tntrun.TntRun
+api-version: '1.16'
+author: Kepchyk1101
+
+depend:
+  - PlaceholderAPI
+  - WorldEdit
+  - WorldGuard
+
+commands:
+  tntrun:
+    permission: tntrun.admin

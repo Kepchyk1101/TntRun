@@ -1,0 +1,31 @@
+plugins {
+    id 'java'
+    alias libs.plugins.johnrengelman.shadow
+    alias libs.plugins.freefair.lombok
+}
+
+group = 'net.spookytime'
+version = '1.0'
+
+compileJava {
+    options.encoding = 'UTF-8'
+    sourceCompatibility = '16'
+    targetCompatibility = '16'
+}
+
+dependencies {
+    compileOnly libs.destroystokyo.paper.api
+    compileOnly libs.projectlombok.lombok
+    compileOnly libs.decentsoftware.decentholograms
+    compileOnly libs.sk89q.worldedit
+    compileOnly libs.sk89q.worldguard
+    compileOnly 'me.clip:placeholderapi:2.11.6'
+
+    compileOnly fileTree(dir: "libs", includes: ['*.jar'])
+
+    annotationProcessor libs.projectlombok.lombok
+}
+
+shadowJar {
+    archiveFileName = "TntRun.jar"
+}

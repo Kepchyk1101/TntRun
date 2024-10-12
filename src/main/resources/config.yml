@@ -1,0 +1,24 @@
+#Задержка разрушения тнт, 20 = 1сек
+tnt-destroy-delay: 20
+
+#Куда тепать игроков при вводе команды
+teleport-to:
+  ==: org.bukkit.Location
+  world: world
+  x: 100
+  y: 100
+  z: 100
+
+#Регион, если в который влететь - получишь gm3
+out-region:
+  id: tntarena
+  world: world
+
+#Регионы тнт (на каждый уровень свой регион) - будут заполняться тнт
+tnt-regions:
+  - tnt1
+  - tnt2
+
+#Блатные:
+exclude:
+  - 'GameMax'

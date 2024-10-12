@@ -1,0 +1,29 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+    }
+}
+
+dependencyResolutionManagement {
+    repositories {
+        mavenCentral()
+        maven {
+            name = 'papermc-repo'
+            url = 'https://repo.papermc.io/repository/maven-public/'
+        }
+        maven {
+            name = 'enginehub-repo'
+            url = 'https://maven.enginehub.org/repo/'
+        }
+        maven {
+            name = "jitpack"
+            url = "https://jitpack.io/"
+        }
+        maven {
+            name = 'extendedclip-repo'
+            url = 'https://repo.extendedclip.com/content/repositories/placeholderapi/'
+        }
+    }
+}
+
+rootProject.name = 'TntRun'

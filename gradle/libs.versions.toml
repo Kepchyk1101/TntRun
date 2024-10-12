@@ -1,0 +1,19 @@
+[versions]
+johnrengelman-shadow = '8.1.1'
+freefair-lombok = '8.4'
+projectlombok-lombok = '1.18.30'
+destroystokyo-paper-api = '1.16.5-R0.1-SNAPSHOT'
+decentsoftware-decentholograms = '2.8.11'
+sk89q-worldedit = '7.2.12'
+sk89q-worldguard = '7.0.5'
+
+[libraries]
+projectlombok-lombok = { module = 'org.projectlombok:lombok', version.ref = 'projectlombok-lombok' }
+destroystokyo-paper-api = { module = 'com.destroystokyo.paper:paper-api', version.ref = 'destroystokyo-paper-api' }
+decentsoftware-decentholograms = { module = 'com.github.decentsoftware-eu:decentholograms', version.ref = 'decentsoftware-decentholograms' }
+sk89q-worldedit = { module = 'com.sk89q.worldedit:worldedit-bukkit', version.ref = 'sk89q-worldedit' }
+sk89q-worldguard = { module = 'com.sk89q.worldguard:worldguard-bukkit', version.ref = 'sk89q-worldguard' }
+
+[plugins]
+johnrengelman-shadow = { id = 'com.github.johnrengelman.shadow', version.ref = 'johnrengelman-shadow' }
+freefair-lombok = { id = 'io.freefair.lombok', version.ref = 'freefair-lombok' }
