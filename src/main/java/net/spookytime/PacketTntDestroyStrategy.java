@@ -45,7 +45,7 @@ public class PacketTntDestroyStrategy implements TntDestroyStrategy {
           }
         }
       }
-    }, 2L, 2L);
+    }, 1L, 1L);
   }
   
 }

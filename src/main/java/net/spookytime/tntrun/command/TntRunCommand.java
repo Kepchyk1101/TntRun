@@ -2,6 +2,7 @@ package net.spookytime.tntrun.command;
 
 import com.sk89q.worldedit.EditSession;
 import com.sk89q.worldedit.WorldEdit;
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.function.mask.BlockTypeMask;
 import com.sk89q.worldedit.function.mask.Mask;
 import com.sk89q.worldedit.function.mask.Mask2D;
@@ -17,9 +18,11 @@ import lombok.experimental.FieldDefaults;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
+import net.spookytime.TntDestroyStrategy;
 import net.spookytime.tntrun.TntRun;
 import net.spookytime.tntrun.listener.TntRunListener;
 import org.bukkit.*;
+import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
@@ -57,6 +60,8 @@ public class TntRunCommand implements TabExecutor {
   @NotNull
   Random random = new Random();
   
+  @NotNull TntDestroyStrategy tntDestroyStrategy;
+  
   @Override
   public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command,
                            @NotNull String label, @NotNull String[] args) {
@@ -75,9 +80,36 @@ public class TntRunCommand implements TabExecutor {
       case "reset" -> handleResetSubCommand(sender, args);
       case "djump" -> handleDoubleJumpSubCommand(sender, args);
       case "refill" -> handleRefillSubCommand(sender, args);
+      case "test" -> test(sender, args);
     }
     
     return true;
+  }
+  
+  private void test(@NotNull CommandSender sender, @NotNull String[] args) {
+    org.bukkit.World bukkitWorld = Bukkit.getWorld("world");
+    CuboidRegion region = new CuboidRegion(
+      BukkitAdapter.adapt(bukkitWorld),
+      BlockVector3.at(-128, 102, 207),
+      BlockVector3.at(-1, 101, 80)
+    );
+    List<Block> blocks = new ArrayList<>();
+    region.forEach(blockVector3 -> {
+      Block bukkitBlock = bukkitWorld.getBlockAt(blockVector3.getX(), blockVector3.getY(), blockVector3.getZ());
+      blocks.add(bukkitBlock);
+    });
+    System.out.println(blocks.size());
+    new Thread(() -> {
+      while (true) {
+        Block block = blocks.remove(random.nextInt(blocks.size()));
+        tntDestroyStrategy.scheduleTntDestroy(block, 10);
+        try {
+          Thread.sleep(2);
+        } catch (InterruptedException e) {
+          throw new RuntimeException(e);
+        }
+      }
+    }).start();
   }
   
   private void handleEnableSubCommand(@NotNull CommandSender sender, String @NotNull [] args) {

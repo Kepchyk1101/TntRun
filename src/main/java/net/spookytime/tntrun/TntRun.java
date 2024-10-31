@@ -8,7 +8,6 @@ import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import net.spookytime.PacketTntDestroyStrategy;
 import net.spookytime.TntDestroyStrategy;
 import net.spookytime.tntrun.command.TntRunCommand;
 import net.spookytime.tntrun.hook.PAPIExpansion;
@@ -41,7 +40,7 @@ public class TntRun extends JavaPlugin {
     CuboidRegion region = new CuboidRegion(outRegion.getMinimumPoint(), outRegion.getMaximumPoint());
     int djumpRandomizerPlayerAmount = getConfig().getInt("double-jump-randomizer.player-amount");
     
-    TntDestroyStrategy tntDestroyStrategy = new PacketTntDestroyStrategy(this);
+    TntDestroyStrategy tntDestroyStrategy = new WorldEditTntDestroyStrategy(this);
     tntDestroyStrategy.enable();
     
     List<CuboidRegion> tntRegions = getConfig().getStringList("tnt-regions")
@@ -50,7 +49,7 @@ public class TntRun extends JavaPlugin {
       .map(protectedRegion -> new CuboidRegion(protectedRegion.getMinimumPoint(), protectedRegion.getMaximumPoint()))
       .toList();
     
-    getCommand("tntrun").setExecutor(new TntRunCommand(exclude, teleportTo, this, tntRegions, outRegionWorld, djumpRandomizerPlayerAmount));
+    getCommand("tntrun").setExecutor(new TntRunCommand(exclude, teleportTo, this, tntRegions, outRegionWorld, djumpRandomizerPlayerAmount, tntDestroyStrategy));
     getServer().getPluginManager().registerEvents(new TntRunListener(this, tntDestroyDelay, region, exclude, tntDestroyStrategy), this);
     new PAPIExpansion(exclude).register();
   }
