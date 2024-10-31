@@ -5,6 +5,7 @@ import com.sk89q.worldedit.regions.Region;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import net.spookytime.TntDestroyStrategy;
 import net.spookytime.tntrun.TntRun;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -21,8 +22,10 @@ import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.util.NumberConversions;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -30,6 +33,8 @@ import java.util.Set;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class TntRunListener implements Listener {
+  
+  private static double PLAYER_BOUNDINGBOX_ADD = 0.3;
   
   @NotNull
   public static Set<Block> destroyed = new HashSet<>();
@@ -40,6 +45,8 @@ public class TntRunListener implements Listener {
   Region outRegion;
   @NotNull
   Set<String> exclude;
+  @NotNull
+  TntDestroyStrategy tntDestroyStrategy;
   
   @EventHandler
   private void on(@NotNull PlayerMoveEvent event) {
@@ -51,10 +58,12 @@ public class TntRunListener implements Listener {
       return;
     }
     
-    Block block = event.getPlayer()
-      .getLocation()
-      .subtract(0, 1, 0)
-      .getBlock();
+    Location subtract = event.getPlayer().getLocation().add(0, -1, 0);
+    Block block = getBlockUnderPlayer(subtract.getBlockY(), subtract);
+    if (block == null) {
+      return;
+    }
+    
     if (block.getType() != Material.TNT) {
       return;
     }
@@ -64,13 +73,7 @@ public class TntRunListener implements Listener {
     }
     
     destroyed.add(block);
-    Bukkit.getScheduler().runTaskLater(plugin, () -> {
-      block.setType(Material.AIR);
-      Block relative = block.getRelative(0, -1, 0);
-      if (relative.getType() == Material.TNT) {
-        relative.setType(Material.AIR);
-      }
-    }, tntDestroyDelay);
+    tntDestroyStrategy.scheduleTntDestroy(block, (int) tntDestroyDelay);
   }
   
   @EventHandler
@@ -124,11 +127,48 @@ public class TntRunListener implements Listener {
   @EventHandler
   private void on(@NotNull PlayerJoinEvent event) {
     Player player = event.getPlayer();
-    if (player.hasPotionEffect(PotionEffectType.NIGHT_VISION)) {
-      return;
+    if (!player.hasPotionEffect(PotionEffectType.NIGHT_VISION)) {
+      player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, Integer.MAX_VALUE, 1));
+    }
+  }
+  
+  @Nullable
+  private Block getBlockUnderPlayer(int y, Location location) {
+    PlayerPosition loc = new PlayerPosition(location.getX(), y, location.getZ());
+    Block b11 = loc.getBlock(location.getWorld(), +PLAYER_BOUNDINGBOX_ADD, -PLAYER_BOUNDINGBOX_ADD);
+    if (b11.getType() != Material.AIR) {
+      return b11;
+    }
+    Block b12 = loc.getBlock(location.getWorld(), -PLAYER_BOUNDINGBOX_ADD, +PLAYER_BOUNDINGBOX_ADD);
+    if (b12.getType() != Material.AIR) {
+      return b12;
+    }
+    Block b21 = loc.getBlock(location.getWorld(), +PLAYER_BOUNDINGBOX_ADD, +PLAYER_BOUNDINGBOX_ADD);
+    if (b21.getType() != Material.AIR) {
+      return b21;
+    }
+    Block b22 = loc.getBlock(location.getWorld(), -PLAYER_BOUNDINGBOX_ADD, -PLAYER_BOUNDINGBOX_ADD);
+    if (b22.getType() != Material.AIR) {
+      return b22;
+    }
+    return null;
+  }
+  
+  private static class PlayerPosition {
+    
+    private double x;
+    private int y;
+    private double z;
+    
+    public PlayerPosition(double x, int y, double z) {
+      this.x = x;
+      this.y = y;
+      this.z = z;
     }
     
-    player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, Integer.MAX_VALUE, 1));
+    public Block getBlock(World world, double addx, double addz) {
+      return world.getBlockAt(NumberConversions.floor(x + addx), y, NumberConversions.floor(z + addz));
+    }
   }
   
 }

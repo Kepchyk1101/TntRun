@@ -2,6 +2,9 @@ package net.spookytime.tntrun.command;
 
 import com.sk89q.worldedit.EditSession;
 import com.sk89q.worldedit.WorldEdit;
+import com.sk89q.worldedit.function.mask.BlockTypeMask;
+import com.sk89q.worldedit.function.mask.Mask;
+import com.sk89q.worldedit.function.mask.Mask2D;
 import com.sk89q.worldedit.function.pattern.RandomPattern;
 import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.regions.CuboidRegion;
@@ -122,17 +125,17 @@ public class TntRunCommand implements TabExecutor {
   @SneakyThrows
   private void handleRefillSubCommand(@NotNull CommandSender sender, String @NotNull [] args) {
     TntRunListener.destroyed.clear();
-    Bukkit.getScheduler().cancelTasks(plugin);
     for (CuboidRegion region : tnts) {
       EditSession editSession = WorldEdit.getInstance().newEditSession(outRegionWorld);
+      editSession.setMask(new BlockTypeMask(editSession, BlockTypes.AIR));
       RandomPattern randomPattern = new RandomPattern();
       randomPattern.add(BlockTypes.TNT.getDefaultState(), 100);
-//      editSession.setBlocks(region, randomPattern);
-      for (BlockVector3 vector : region) {
-        if (editSession.getBlock(vector).getBlockType() == BlockTypes.AIR) {
-          editSession.setBlock(vector, randomPattern.applyBlock(vector));
-        }
-      }
+      editSession.setBlocks(region, randomPattern);
+//      for (BlockVector3 vector : region) {
+//        if (editSession.getBlock(vector).getBlockType() == BlockTypes.AIR) {
+//          editSession.setBlock(vector, randomPattern.applyBlock(vector));
+//        }
+//      }
       editSession.close();
     }
     sender.sendMessage(Component.text("Динамит установлен!").color(NamedTextColor.GREEN));
